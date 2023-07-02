@@ -9,3 +9,4 @@ stamp
 VMBuilder/vcsversion.py
 dist
 MANIFEST
+*.pyc
