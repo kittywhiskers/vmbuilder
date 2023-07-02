@@ -32,7 +32,7 @@ class Ubuntu(Distro):
               'karmic', 'lucid', 'maverick', 'natty', 'oneiric',
               'precise', 'quantal', 'raring', 'saucy', 'trusty',
               'utopic', 'vivid', 'wily', 'xenial', 'bionic',
-              'focal',
+              'focal', 'jammy'
              ]
 
     # Maps host arch to valid guest archs

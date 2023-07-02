@@ -166,7 +166,12 @@ class Dapper(suite.Suite):
 
     def config_interfaces(self, nics):
         suite = self.context.get_setting('suite')
-        if suite == 'xenial' or suite == 'bionic' or suite == 'focal':
+        if (
+           suite == 'xenial' or
+           suite == 'bionic' or
+           suite == 'focal'  or
+           suite == 'jammy'
+           ):
                 self.install_from_template('/etc/network/interfaces', 'interfaces',
                                    { 'ip' : nics[0].type == 'dhcp' and 'dhcp' or nics[0].ip,
                                      'mask' : nics[0].netmask,
