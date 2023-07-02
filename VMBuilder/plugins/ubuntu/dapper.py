@@ -170,7 +170,8 @@ class Dapper(suite.Suite):
            suite == 'xenial' or
            suite == 'bionic' or
            suite == 'focal'  or
-           suite == 'jammy'
+           suite == 'jammy'  or
+           suite == 'kinetic'
            ):
                 self.install_from_template('/etc/network/interfaces', 'interfaces',
                                    { 'ip' : nics[0].type == 'dhcp' and 'dhcp' or nics[0].ip,
