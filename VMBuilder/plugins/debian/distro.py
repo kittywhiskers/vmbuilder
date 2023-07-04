@@ -29,7 +29,7 @@ class Debian(Distro):
     name = 'Debian'
     arg = 'debian'
     suites = ['potato', 'woody', 'sarge', 'etch', 'lenny',
-              'squeeze', 'wheezy', 'jessie', 'stretch' ]
+              'squeeze', 'wheezy', 'jessie', 'stretch', 'buster' ]
 
     # Maps host arch to valid guest archs
     valid_archs = { 'amd64' : ['amd64', 'i386' ],
@@ -60,7 +60,7 @@ class Debian(Distro):
         group.add_setting('security-mirror', metavar='URL', help='Use Debian security mirror at URL instead of the default, which is http://security.debian.org/debian-security.')
         group.add_setting('install-security-mirror', metavar='URL', help='Use the security mirror at URL for installation only. Apt\'s sources.list will still use default or URL set by --security-mirror')
         group.add_setting('components', type='list', metavar='COMPS', help='A comma seperated list of distro components to include (e.g. main,universe).')
-        group.add_setting('lang', metavar='LANG', default=get_locale(), help='Set the locale to LANG [default: %default]')
+        group.add_setting('lang', metavar='LANG', default='', help='Set the locale to LANG [default: read from environment variable]')
         group.add_setting('timezone', metavar='TZ', default='UTC', help='Set the timezone to TZ in the vm. [default: %default]')
 
         group = self.setting_group('Settings for the initial user')
@@ -78,9 +78,15 @@ class Debian(Distro):
         group.add_setting('manifest', metavar='PATH', help='If passed, a manifest will be written to PATH')
 
     def set_defaults(self):
-        self.set_setting_default('mirror', 'http://archive.debian.org/debian-archive/debian')
-        self.set_setting_default('security-mirror', 'http://archive.debian.org/debian-archive/debian-security')
-
+        suite = self.context.get_setting('suite')
+        if  (
+            suite == 'buster'
+            ):
+            self.set_setting_default('mirror', 'http://deb.debian.org/debian')
+            self.set_setting_default('security-mirror', 'http://security.debian.org/debian-security')
+        else:
+            self.set_setting_default('mirror', 'http://archive.debian.org/debian-archive/debian')
+            self.set_setting_default('security-mirror', 'http://archive.debian.org/debian-archive/debian-security')
         self.set_setting_default('components',  ['main'])
 
     def preflight_check(self):
@@ -116,8 +122,24 @@ class Debian(Distro):
         if seedfile and not os.path.exists(seedfile):
             raise VMBuilderUserError("Seedfile '%s' does not exist" % seedfile)
 
-        lang = self.get_setting('lang')
-
+        # determine LANG if not explicitly defined
+        lang_arg = self.get_setting('lang')
+        if lang_arg == '':
+            lang = get_locale()
+            suite = self.context.get_setting('suite')
+            if (
+               suite == 'buster'
+               ):
+                # New format is enforced from buster onwards
+                if lang.endswith('UTF-8'):
+                    return lang[:-4] + 'utf8'
+            else:
+                # People's $LANG looks different since lucid, but locale-gen still
+                # wants the old format.
+                if lang.endswith('utf8'):
+                    return lang[:-4] + 'UTF-8'
+        else:
+            lang = lang_arg
 # FIXME
 #        if getattr(self.vm, 'ec2', False):
 #            self.get_ec2_kernel()
@@ -277,10 +299,6 @@ def get_locale():
     lang = os.getenv('LANG')
     if lang is None:
         return 'C'
-    # People's $LANG looks different since lucid, but locale-gen still
-    # wants the old format.
-    if lang.endswith('utf8'):
-        return lang[:-4] + 'UTF-8'
     return lang
 
 register_distro(Debian)

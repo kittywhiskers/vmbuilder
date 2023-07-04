@@ -241,7 +241,7 @@ class Potato(suite.Suite):
         self.run_in_target('apt-get', 'update', ignore_fail=final)
 
     def install_sources_list(self, final=False):
-        self._install_sources_list('sources.list', final)
+        self._install_sources_list('sources.list.legacy', final)
 
     def install_apt_proxy(self):
         proxy = self.context.get_setting('proxy')
