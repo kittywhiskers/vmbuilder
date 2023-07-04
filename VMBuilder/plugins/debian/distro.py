@@ -29,7 +29,8 @@ class Debian(Distro):
     name = 'Debian'
     arg = 'debian'
     suites = ['potato', 'woody', 'sarge', 'etch', 'lenny',
-              'squeeze', 'wheezy', 'jessie', 'stretch', 'buster' ]
+              'squeeze', 'wheezy', 'jessie', 'stretch', 'buster',
+              'bullseye' ]
 
     # Maps host arch to valid guest archs
     valid_archs = { 'amd64' : ['amd64', 'i386' ],
@@ -80,7 +81,8 @@ class Debian(Distro):
     def set_defaults(self):
         suite = self.context.get_setting('suite')
         if  (
-            suite == 'buster'
+            suite == 'buster'   or
+            suite == 'bullseye'
             ):
             self.set_setting_default('mirror', 'http://deb.debian.org/debian')
             self.set_setting_default('security-mirror', 'http://security.debian.org/debian-security')
@@ -128,7 +130,8 @@ class Debian(Distro):
             lang = get_locale()
             suite = self.context.get_setting('suite')
             if (
-               suite == 'buster'
+               suite == 'buster' or
+               suite == 'bullseye'
                ):
                 # New format is enforced from buster onwards
                 if lang.endswith('UTF-8'):
