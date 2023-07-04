@@ -220,7 +220,7 @@ class Potato(suite.Suite):
         run_cmd('sed', '-ie', 's/^# groot.*/# groot=(hd0,0)/g', '%s/boot/grub/menu.lst' % self.context.chroot_dir)
         run_cmd('sed', '-ie', '/^# kopt_2_6/ d', '%s/boot/grub/menu.lst' % self.context.chroot_dir)
 
-    def install_sources_list(self, final=False):
+    def _install_sources_list(self, template, final):
         if final:
             mirror = updates_mirror = self.context.get_setting('mirror')
             security_mirror = self.context.get_setting('security-mirror')
@@ -229,16 +229,19 @@ class Potato(suite.Suite):
 
         components = self.context.get_setting('components')
         suite      = self.context.get_setting('suite')
-        self.install_from_template('/etc/apt/sources.list', 'sources.list', { 'mirror' : mirror,
-                                                                              'security_mirror' : security_mirror,
-                                                                              'updates_mirror' : updates_mirror,
-                                                                              'components' : components,
-                                                                              'suite' : suite })
+        self.install_from_template('/etc/apt/sources.list', template, { 'mirror' : mirror,
+                                                                        'security_mirror' : security_mirror,
+                                                                        'updates_mirror' : updates_mirror,
+                                                                        'components' : components,
+                                                                        'suite' : suite })
 
         # If setting up the final mirror, allow apt-get update to fail
         # (since we might be on a complete different network than the
         # final vm is going to be on).
         self.run_in_target('apt-get', 'update', ignore_fail=final)
+
+    def install_sources_list(self, final=False):
+        self._install_sources_list('sources.list', final)
 
     def install_apt_proxy(self):
         proxy = self.context.get_setting('proxy')
